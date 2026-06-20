@@ -1,0 +1,21 @@
+{
+  "balances": {
+    "user": 9000,
+    "admin": 116000
+  },
+  "orders": {
+    "6a34dc2bb280f776d2a97ef3": {
+      "status": "returned",
+      "refundMethod": "Bank Transfer",
+      "refundAmount": 4000,
+      "updatedAt": "2026-06-19T06:09:02.745Z"
+    },
+    "6a34e6e8b280f776d2a99eeb": {
+      "status": "return_requested",
+      "refundMethod": "Bank Transfer",
+      "refundAmount": 15000,
+      "updatedAt": "2026-06-19T06:55:39.249Z"
+    }
+  },
+  "transactions": []
+}
