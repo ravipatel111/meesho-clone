@@ -14,7 +14,12 @@ const SESSION_TOKEN_KEY = "user_meesho_token";
 const loadUser = () => {
   try {
     const raw = sessionStorage.getItem(SESSION_USER_KEY);
-    return raw ? JSON.parse(raw) : null;
+    if (!raw) return null;
+    const user = JSON.parse(raw);
+    if (user) {
+      user.name = user.name || user.username;
+    }
+    return user;
   } catch {
     return null;
   }
@@ -56,6 +61,17 @@ const clearSession = () => {
 
 // ─── Thunks ───────────────────────────────────────────────
 
+const extractErrorMessage = (err, fallback) => {
+  if (!err.response) {
+    return "Network connection failed. If you are running on port 5175, please switch back to 5174 to avoid CORS block by the remote backend.";
+  }
+  const errorData = err.response?.data;
+  if (errorData?.errors && Array.isArray(errorData.errors)) {
+    return errorData.errors.join(", ");
+  }
+  return errorData?.message || fallback;
+};
+
 export const registerUser = createAsyncThunk(
   "auth/register",
   async (formData, { rejectWithValue }) => {
@@ -63,9 +79,7 @@ export const registerUser = createAsyncThunk(
       const res = await axiosInstance.post("/user/auth/register", formData);
       return res.data;
     } catch (err) {
-      return rejectWithValue(
-        err.response?.data?.message || "Registration failed",
-      );
+      return rejectWithValue(extractErrorMessage(err, "Registration failed"));
     }
   },
 );
@@ -80,9 +94,7 @@ export const verifyOtp = createAsyncThunk(
       });
       return res.data;
     } catch (err) {
-      return rejectWithValue(
-        err.response?.data?.message || "OTP verification failed",
-      );
+      return rejectWithValue(extractErrorMessage(err, "OTP verification failed"));
     }
   },
 );
@@ -96,9 +108,7 @@ export const verifyEmail = createAsyncThunk(
       });
       return res.data;
     } catch (err) {
-      return rejectWithValue(
-        err.response?.data?.message || "Email verification failed",
-      );
+      return rejectWithValue(extractErrorMessage(err, "Email verification failed"));
     }
   },
 );
@@ -113,7 +123,7 @@ export const loginUser = createAsyncThunk(
       });
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Login failed");
+      return rejectWithValue(extractErrorMessage(err, "Login failed"));
     }
   },
 );
@@ -128,9 +138,7 @@ export const resetPassword = createAsyncThunk(
       });
       return res.data;
     } catch (err) {
-      return rejectWithValue(
-        err.response?.data?.message || "Password reset failed",
-      );
+      return rejectWithValue(extractErrorMessage(err, "Password reset failed"));
     }
   },
 );
@@ -144,9 +152,7 @@ export const forgotPassword = createAsyncThunk(
       });
       return res.data;
     } catch (err) {
-      return rejectWithValue(
-        err.response?.data?.message || "Failed to send OTP",
-      );
+      return rejectWithValue(extractErrorMessage(err, "Failed to send OTP"));
     }
   },
 );
@@ -163,9 +169,7 @@ export const changePassword = createAsyncThunk(
       });
       return res.data;
     } catch (err) {
-      return rejectWithValue(
-        err.response?.data?.message || "Password change failed",
-      );
+      return rejectWithValue(extractErrorMessage(err, "Password change failed"));
     }
   },
 );
@@ -277,6 +281,10 @@ const authSlice = createSlice({
           user = { role: "admin" };
         }
 
+        if (user) {
+          user = { ...user, name: user.name || user.username };
+        }
+
         // Store token
         state.token = token ?? null;
         state.user = user ?? null;
@@ -327,9 +335,10 @@ const authSlice = createSlice({
 
       // Sync updateProfile from userSlice to auth state and sessionStorage
       .addCase("user/updateProfile/fulfilled", (state, action) => {
-        const updatedUser =
+        let updatedUser =
           action.payload?.user || action.payload?.data || action.payload;
         if (updatedUser) {
+          updatedUser = { ...updatedUser, name: updatedUser.name || updatedUser.username };
           state.user = { ...state.user, ...updatedUser };
           saveUser(state.user);
         }

@@ -44,6 +44,7 @@ export default function AdminPayments() {
   const { isDarkMode } = useOutletContext();
 
   const { orders, isLoading } = useAppSelector((s) => s.admin);
+  const { user } = useAppSelector((s) => s.auth);
   const [selectedOrder, setSelectedOrder] = useState(null);
 
   useEffect(() => {
@@ -102,7 +103,7 @@ export default function AdminPayments() {
       </div>
 
       {/* Refund Ledger Table */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-6 lg:p-8 shadow-xs flex-1 min-h-0 flex flex-col gap-4">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-6 lg:p-8 shadow-xs flex-1 min-h-[320px] flex flex-col gap-4">
         <h4 className="text-xs font-bold text-slate-800 dark:text-slate-100 uppercase tracking-widest mb-2 pb-3 border-b border-slate-100 dark:border-slate-800 flex-shrink-0">
           Customer Refund Ledger
         </h4>
@@ -121,16 +122,17 @@ export default function AdminPayments() {
             <p className="text-xs">No orders have been cancelled or returned yet.</p>
           </div>
         ) : (
-          <div className="overflow-y-auto flex-1 min-h-0 border border-slate-100 dark:border-slate-800 rounded-xl">
+          <div className="overflow-auto flex-1 min-h-0 border border-slate-100 dark:border-slate-800 rounded-xl">
             <table className="w-full text-left border-collapse text-xs relative">
               <thead className="sticky top-0 bg-slate-50 dark:bg-slate-950 z-10">
-                <tr className="border-b border-slate-100 dark:border-slate-800 text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider text-[10px]">
+                <tr className="border-b border-slate-100 dark:border-slate-800 text-slate-400 dark:border-slate-500 font-bold uppercase tracking-wider text-[10px]">
                   <th className="py-3 px-4">Order Reference</th>
                   <th className="py-3 px-4">Customer</th>
                   <th className="py-3 px-4">Item Details</th>
                   <th className="py-3 px-4">Date</th>
                   <th className="py-3 px-4">Payment Method</th>
                   <th className="py-3 px-4">Refund Amount</th>
+                  {user?.adminRole === "superadmin" && <th className="py-3 px-4">Admin</th>}
                   <th className="py-3 px-4 text-center">Refund Status</th>
                   <th className="py-3 px-4 text-center">View</th>
                 </tr>
@@ -158,6 +160,9 @@ export default function AdminPayments() {
                       <td className="py-4 px-4 text-slate-500 dark:text-slate-400 font-medium whitespace-nowrap">{dateStr}</td>
                       <td className="py-4 px-4 text-slate-500 dark:text-slate-450 font-bold uppercase">{ord.paymentMethod || "UPI"}</td>
                       <td className="py-4 px-4 font-black text-slate-900 dark:text-slate-100">₹{(ord.totalPrice || 0).toLocaleString("en-IN")}</td>
+                      {user?.adminRole === "superadmin" && (
+                        <td className="py-4 px-4 text-slate-500 dark:text-slate-400 font-semibold">{ord.seller?.name || "SuperAdmin"}</td>
+                      )}
                       <td className="py-4 px-4">
                         <div className="flex justify-center">
                           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/30">

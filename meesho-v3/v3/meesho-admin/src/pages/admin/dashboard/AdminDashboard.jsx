@@ -1659,7 +1659,7 @@ export default function AdminDashboard() {
               }
 
               return (
-                <div className="overflow-y-auto flex-1 min-h-0 border border-slate-100 dark:border-slate-800 rounded-2xl">
+                <div className="overflow-auto flex-1 min-h-[320px] border border-slate-100 dark:border-slate-800 rounded-2xl">
                   <table className="w-full text-left border-collapse text-xs relative">
                     <thead className="sticky top-0 bg-slate-50 dark:bg-slate-900 z-10">
                       <tr className="bg-slate-50/70 dark:bg-slate-900/60 border-b border-slate-100 dark:border-slate-800 text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider text-[10px]">
@@ -2176,7 +2176,7 @@ export default function AdminDashboard() {
           </div>
 
           {/* Refund ledger */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-6 lg:p-8 shadow-xs flex-1 min-h-0 flex flex-col gap-4">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-6 lg:p-8 shadow-xs flex-1 min-h-[320px] flex flex-col gap-4">
             <h4 className="text-xs font-bold text-slate-800 dark:text-slate-100 uppercase tracking-widest mb-6 pb-3 border-b border-slate-100 dark:border-slate-800 flex-shrink-0">
               Customer Refund Ledger
             </h4>
@@ -2204,7 +2204,7 @@ export default function AdminDashboard() {
                 </p>
               </div>
             ) : (
-              <div className="overflow-y-auto flex-1 min-h-0 border border-slate-100 dark:border-slate-800 rounded-xl">
+              <div className="overflow-auto flex-1 min-h-[320px] border border-slate-100 dark:border-slate-800 rounded-xl">
                 <table className="w-full text-left border-collapse text-xs relative">
                   <thead className="sticky top-0 bg-slate-50 dark:bg-slate-950 z-10">
                     <tr className="bg-slate-50 dark:bg-slate-950 border-b border-slate-100 dark:border-slate-800 text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider text-[10px]">

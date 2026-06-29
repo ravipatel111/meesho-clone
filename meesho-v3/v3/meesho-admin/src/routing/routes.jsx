@@ -24,6 +24,9 @@ const AdminUsers = lazy(() => import("../pages/admin/users/AdminUsers"));
 const AdminPayments = lazy(
   () => import("../pages/admin/payments/AdminPayments"),
 );
+const SubAdmins = lazy(
+  () => import("../pages/admin/subadmins/SubAdmins"),
+);
 
 const wrap = (el) => <ErrorBoundary>{el}</ErrorBoundary>;
 
@@ -53,6 +56,7 @@ export const router = createBrowserRouter([
       { path: "/categories", element: wrap(<AdminCategories />) },
       { path: "/users", element: wrap(<AdminUsers />) },
       { path: "/payments", element: wrap(<AdminPayments />) },
+      { path: "/subadmins", element: wrap(<SubAdmins />) },
     ],
   },
   {

@@ -68,15 +68,15 @@ const Icons = {
 
 function Modal({ title, onClose, children }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm text-xs">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-md shadow-xl border border-slate-100 dark:border-slate-800">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm text-xs overflow-y-auto">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-md shadow-xl border border-slate-100 dark:border-slate-800 my-8">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-t-2xl z-10 sticky top-0">
           <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">{title}</h3>
-          <button onClick={onClose} className="p-1 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-all">
+          <button onClick={onClose} className="p-1 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-all cursor-pointer">
             <Icons.Close />
           </button>
         </div>
-        <div className="p-6">{children}</div>
+        <div className="p-6 overflow-y-auto max-h-[70vh]">{children}</div>
       </div>
     </div>
   );
@@ -259,6 +259,7 @@ export default function AdminCategories() {
   const showToast = typeof _catContext.showToast === "function" ? _catContext.showToast : () => {};
   const dispatch = useAppDispatch();
   const { categories, subCategories, isLoading, error, successMessage } = useAppSelector(s => s.category);
+  const { user } = useAppSelector(s => s.auth);
   const [tab, setTab] = useState('categories');
   const [search, setSearch] = useState('');
   const [modal, setModal] = useState(null); // { type: 'cat'|'sub', editing: null|obj }
@@ -300,7 +301,7 @@ export default function AdminCategories() {
     setDeleteTarget(null);
   };
 
-  const getCatName = (sub) => sub.category?.name || categories.find(c => c._id === sub.category)?.name || '—';
+  const getCatName = (sub) => sub.category?.name || categories.find(c => c._id === (sub.category?._id || sub.category))?.name || '—';
 
   // Stats KPIs calculations
   const totalCategories = categories.length;
@@ -310,13 +311,13 @@ export default function AdminCategories() {
 
   // Search filtering
   const filteredCats = categories.filter(c =>
-    c.name?.toLowerCase().includes(search.toLowerCase()) ||
-    c.slug?.toLowerCase().includes(search.toLowerCase())
+    (c.name || '').toLowerCase().includes(search.toLowerCase()) ||
+    (c.slug || '').toLowerCase().includes(search.toLowerCase())
   );
 
   const filteredSubs = subCategories.filter(s =>
-    s.name?.toLowerCase().includes(search.toLowerCase()) ||
-    s.slug?.toLowerCase().includes(search.toLowerCase()) ||
+    (s.name || '').toLowerCase().includes(search.toLowerCase()) ||
+    (s.slug || '').toLowerCase().includes(search.toLowerCase()) ||
     getCatName(s).toLowerCase().includes(search.toLowerCase())
   );
 
@@ -407,21 +408,22 @@ export default function AdminCategories() {
 
       {/* Categories Table */}
       {tab === 'categories' && (
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-auto shadow-xs flex-1 min-h-0">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-auto shadow-xs flex-1 min-h-[320px]">
           <table className="w-full text-left border-collapse text-xs relative">
             <thead className="sticky top-0 bg-slate-50 dark:bg-slate-900 z-10">
               <tr className="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-100 dark:border-slate-800 text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider text-[10px]">
                 <th className="py-4 px-5">Image</th>
                 <th className="py-4 px-5">Name</th>
                 <th className="py-4 px-5">Slug</th>
+                {user?.adminRole === "superadmin" && <th className="py-4 px-5">Admin</th>}
                 <th className="py-4 px-5 text-center">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
               {isLoading && filteredCats.length === 0
-                ? <tr><td colSpan={4} className="py-12 text-center text-slate-400 dark:text-slate-500 font-semibold">Loading classification database...</td></tr>
+                ? <tr><td colSpan={user?.adminRole === "superadmin" ? 5 : 4} className="py-12 text-center text-slate-400 dark:text-slate-500 font-semibold">Loading classification database...</td></tr>
                 : filteredCats.length === 0
-                ? <tr><td colSpan={4} className="py-16 text-center text-slate-400 dark:text-slate-500 font-bold">
+                ? <tr><td colSpan={user?.adminRole === "superadmin" ? 5 : 4} className="py-16 text-center text-slate-400 dark:text-slate-500 font-bold">
                     <div className="flex flex-col items-center gap-3">
                       <Icons.Folder className="w-10 h-10 text-slate-300 dark:text-slate-650" />
                       <span>{search ? 'No categories match your search.' : 'No categories yet. Add one!'}</span>
@@ -436,6 +438,9 @@ export default function AdminCategories() {
                     </td>
                     <td className="py-4.5 px-5 font-bold text-slate-800 dark:text-slate-200">{cat.name}</td>
                     <td className="py-4.5 px-5 text-slate-400 dark:text-slate-500 font-medium">{cat.slug}</td>
+                    {user?.adminRole === "superadmin" && (
+                      <td className="py-4.5 px-5 text-slate-500 dark:text-slate-400 font-semibold">{cat.createdBy?.name || 'SuperAdmin'}</td>
+                    )}
                     <td className="py-4.5 px-5">
                       <div className="flex items-center justify-center gap-2">
                         <button onClick={() => setViewDetail({ type: 'cat', item: cat })}
@@ -463,7 +468,7 @@ export default function AdminCategories() {
 
       {/* Subcategories Table */}
       {tab === 'subcategories' && (
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-auto shadow-xs flex-1 min-h-0">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-auto shadow-xs flex-1 min-h-[320px]">
           <table className="w-full text-left border-collapse text-xs relative">
             <thead className="sticky top-0 bg-slate-50 dark:bg-slate-900 z-10">
               <tr className="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-100 dark:border-slate-800 text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider text-[10px]">
@@ -471,14 +476,15 @@ export default function AdminCategories() {
                 <th className="py-4 px-5">Name</th>
                 <th className="py-4 px-5">Slug</th>
                 <th className="py-4 px-5">Parent Group</th>
+                {user?.adminRole === "superadmin" && <th className="py-4 px-5">Admin</th>}
                 <th className="py-4 px-5 text-center">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
               {isLoading && filteredSubs.length === 0
-                ? <tr><td colSpan={5} className="py-12 text-center text-slate-400 dark:text-slate-500 font-semibold">Loading subcategory database...</td></tr>
+                ? <tr><td colSpan={user?.adminRole === "superadmin" ? 6 : 5} className="py-12 text-center text-slate-400 dark:text-slate-500 font-semibold">Loading subcategory database...</td></tr>
                 : filteredSubs.length === 0
-                ? <tr><td colSpan={5} className="py-16 text-center text-slate-400 dark:text-slate-500 font-bold">
+                ? <tr><td colSpan={user?.adminRole === "superadmin" ? 6 : 5} className="py-16 text-center text-slate-400 dark:text-slate-500 font-bold">
                     <div className="flex flex-col items-center gap-3">
                       <Icons.Layers className="w-10 h-10 text-slate-300 dark:text-slate-650" />
                       <span>{search ? 'No subcategories match your search.' : 'No subcategories yet. Add one!'}</span>
@@ -496,6 +502,9 @@ export default function AdminCategories() {
                     <td className="py-4.5 px-5">
                       <span className="px-2.5 py-0.5 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 border border-indigo-100/50 dark:border-indigo-900/30 rounded-full text-[10px] font-bold">{getCatName(sub)}</span>
                     </td>
+                    {user?.adminRole === "superadmin" && (
+                      <td className="py-4.5 px-5 text-slate-500 dark:text-slate-400 font-semibold">{sub.createdBy?.name || 'SuperAdmin'}</td>
+                    )}
                     <td className="py-4.5 px-5">
                       <div className="flex items-center justify-center gap-2">
                         <button onClick={() => setViewDetail({ type: 'sub', item: sub })}

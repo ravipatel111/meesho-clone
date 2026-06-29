@@ -222,22 +222,22 @@ const getVideoUrl = (prod) => {
 
 function Modal({ title, onClose, children, wide = false }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm overflow-y-auto">
       <div
-        className={`bg-white dark:bg-slate-900 rounded-2xl w-full shadow-xl border border-slate-100 dark:border-slate-800 ${wide ? "max-w-5xl" : "max-w-md"}`}
+        className={`bg-white dark:bg-slate-900 rounded-2xl w-full shadow-xl border border-slate-100 dark:border-slate-800 my-8 ${wide ? "max-w-5xl" : "max-w-md"}`}
       >
-        <div className="flex items-center justify-between px-6 py-3.5 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-t-2xl z-10">
+        <div className="flex items-center justify-between px-6 py-3.5 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-t-2xl z-10 sticky top-0">
           <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">
             {title}
           </h3>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-200 transition-all"
+            className="p-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-200 transition-all cursor-pointer"
           >
             <Icons.Close />
           </button>
         </div>
-        <div className="p-5">{children}</div>
+        <div className="p-5 overflow-y-auto max-h-[70vh]">{children}</div>
       </div>
     </div>
   );
@@ -777,6 +777,7 @@ export default function AdminProducts() {
     (s) => s.product,
   );
   const { categories, subCategories } = useAppSelector((s) => s.category);
+  const { user } = useAppSelector((s) => s.auth);
 
   const [zoomedImage, setZoomedImage] = useState(null);
   const [viewProduct, setViewProduct] = useState(null);
@@ -1100,7 +1101,7 @@ export default function AdminProducts() {
       </div>
 
       {/* Products Table */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-y-auto shadow-xs flex-1 min-h-0">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-auto shadow-xs flex-1 min-h-[320px]">
         <table className="w-full text-left border-collapse text-xs relative">
           <thead className="sticky top-0 bg-slate-50 dark:bg-slate-900 z-10">
             <tr className="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-100 dark:border-slate-800 text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider text-[10px]">
@@ -1109,6 +1110,7 @@ export default function AdminProducts() {
               <th className="py-4 px-5">Price</th>
               <th className="py-4 px-5">Stock</th>
               <th className="py-4 px-5">Category</th>
+              {user?.adminRole === "superadmin" && <th className="py-4 px-5">Admin</th>}
               <th className="py-4 px-5">Status</th>
               <th className="py-4 px-5 text-center">Actions</th>
             </tr>
@@ -1117,7 +1119,7 @@ export default function AdminProducts() {
             {isLoading && filtered.length === 0 ? (
               <tr>
                 <td
-                  colSpan={7}
+                  colSpan={user?.adminRole === "superadmin" ? 8 : 7}
                   className="py-12 text-center text-slate-400 dark:text-slate-500 font-semibold"
                 >
                   Loading products...
@@ -1126,7 +1128,7 @@ export default function AdminProducts() {
             ) : filtered.length === 0 ? (
               <tr>
                 <td
-                  colSpan={7}
+                  colSpan={user?.adminRole === "superadmin" ? 8 : 7}
                   className="py-16 text-center text-slate-400 dark:text-slate-500 font-bold"
                 >
                   <div className="flex flex-col items-center gap-3">
@@ -1214,6 +1216,11 @@ export default function AdminProducts() {
                   <td className="py-4.5 px-5 text-slate-500 dark:text-slate-400 font-semibold">
                     {p.category?.name || "—"}
                   </td>
+                  {user?.adminRole === "superadmin" && (
+                    <td className="py-4.5 px-5 text-slate-500 dark:text-slate-400 font-semibold">
+                      {p.seller?.name || "SuperAdmin"}
+                    </td>
+                  )}
                   <td className="py-4.5 px-5">
                     <span
                       className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold capitalize ${statusColor(p.status)}`}

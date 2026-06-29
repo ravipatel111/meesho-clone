@@ -178,6 +178,7 @@ export default function AdminOrders() {
   const _ordersContext = useOutletContext() || {};
   const showToast = typeof _ordersContext.showToast === "function" ? _ordersContext.showToast : () => {};
   const dispatch = useAppDispatch();
+  const { user } = useAppSelector((s) => s.auth);
   const {
     orders: storeOrders,
     isLoading,
@@ -656,7 +657,7 @@ export default function AdminOrders() {
       </div>
 
       {/* Order List Table */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-auto shadow-xs flex-1 min-h-0">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-auto shadow-xs flex-1 min-h-[320px]">
         <table className="w-full text-left border-collapse text-xs relative">
           <thead className="sticky top-0 bg-slate-50 dark:bg-slate-900 z-10">
             <tr className="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-100 dark:border-slate-800 text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider text-[10px]">
@@ -665,6 +666,7 @@ export default function AdminOrders() {
               <th className="py-4 px-5">Customer</th>
               <th className="py-4 px-5">Product Purchase</th>
               <th className="py-4 px-5">Total Value</th>
+              {user?.adminRole === "superadmin" && <th className="py-4 px-5">Admin</th>}
               <th className="py-4 px-5 text-center">Status</th>
               <th className="py-4 px-5 text-center">Manage Status</th>
               <th className="py-4 px-5 text-center">View</th>
@@ -674,7 +676,7 @@ export default function AdminOrders() {
             {isLoading && filteredOrders.length === 0 ? (
               <tr>
                 <td
-                  colSpan={8}
+                  colSpan={user?.adminRole === "superadmin" ? 9 : 8}
                   className="py-12 text-center text-slate-400 dark:text-slate-500 font-semibold"
                 >
                   Loading sales database...
@@ -683,7 +685,7 @@ export default function AdminOrders() {
             ) : filteredOrders.length === 0 ? (
               <tr>
                 <td
-                  colSpan={8}
+                  colSpan={user?.adminRole === "superadmin" ? 9 : 8}
                   className="py-16 text-center text-slate-400 dark:text-slate-500 font-bold"
                 >
                   <div className="flex flex-col items-center gap-3">
@@ -773,6 +775,11 @@ export default function AdminOrders() {
                     <td className="py-4.5 px-5 font-black text-slate-800 dark:text-slate-100">
                       ₹{ord.totalPrice.toLocaleString("en-IN")}
                     </td>
+                    {user?.adminRole === "superadmin" && (
+                      <td className="py-4.5 px-5 text-slate-500 dark:text-slate-400 font-semibold">
+                        {ord.seller?.name || "SuperAdmin"}
+                      </td>
+                    )}
                     <td className="py-4.5 px-5 text-center">
                       <span
                         className={`inline-block px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${statusColor(ord.orderStatus)}`}

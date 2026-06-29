@@ -240,7 +240,28 @@ const USER_NAV = [
 
 const Sidebar = ({ isOpen = true }) => {
   const user = useSelector((s) => s.auth?.user);
-  const navItems = user?.role === "admin" ? ADMIN_NAV : USER_NAV;
+  
+  let navItems = [];
+  if (user?.role === "admin") {
+    if (user?.adminRole === "superadmin") {
+      navItems = [
+        ...ADMIN_NAV,
+        {
+          label: "Sub-Admins",
+          icon: (
+            <svg width={20} height={20} viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+            </svg>
+          ),
+          href: "/subadmins",
+        }
+      ];
+    } else {
+      navItems = ADMIN_NAV.filter(item => item.label !== "Users" && item.label !== "Payments");
+    }
+  } else {
+    navItems = USER_NAV;
+  }
 
   return (
     <aside
@@ -252,7 +273,7 @@ const Sidebar = ({ isOpen = true }) => {
           className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${user?.role === "admin" ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-950/40 dark:text-indigo-400" : "bg-green-50 text-green-600"}`}
         >
           <span className="w-1.5 h-1.5 rounded-full bg-current" />
-          {user?.role === "admin" ? "Admin Panel" : "My Account"}
+          {user?.role === "admin" ? (user?.adminRole === "superadmin" ? "Super Admin" : "Admin Panel") : "My Account"}
         </span>
       </div>
 
