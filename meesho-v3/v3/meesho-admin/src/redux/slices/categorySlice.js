@@ -114,8 +114,8 @@ const categorySlice = createSlice({
       .addCase(updateCategory.pending, pending)
       .addCase(updateCategory.fulfilled, (state, action) => {
         state.isLoading = false;
-        const idx = state.categories.findIndex(c => c._id === action.payload._id);
-        if (idx !== -1) state.categories[idx] = action.payload;
+        state.categories = state.categories.filter(c => c._id !== action.payload._id);
+        state.categories.unshift(action.payload);
         state.successMessage = 'Category updated successfully';
       })
       .addCase(updateCategory.rejected, rejected)
@@ -144,8 +144,8 @@ const categorySlice = createSlice({
       .addCase(updateSubCategory.pending, pending)
       .addCase(updateSubCategory.fulfilled, (state, action) => {
         state.isLoading = false;
-        const idx = state.subCategories.findIndex(s => s._id === action.payload._id);
-        if (idx !== -1) state.subCategories[idx] = action.payload;
+        state.subCategories = state.subCategories.filter(s => s._id !== action.payload._id);
+        state.subCategories.unshift(action.payload);
         state.successMessage = 'Subcategory updated successfully';
       })
       .addCase(updateSubCategory.rejected, rejected)

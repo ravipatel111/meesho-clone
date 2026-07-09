@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
 import { addToCart } from "../../../../redux/slices/cartSlice";
 import { addWishlistProduct, removeWishlistProduct } from "../../../../redux/slices/wishlistSlice";
+import axios from "axios";
 
 const Icons = {
   Star: () => (
@@ -162,6 +163,8 @@ export default function ProductDetail({
   const [pincode, setPincode] = useState("");
   const [pincodeError, setPincodeError] = useState("");
   const [pincodeMessage, setPincodeMessage] = useState("");
+  const [shippingLoading, setShippingLoading] = useState(false);
+  const [shippingInfo, setShippingInfo] = useState(null);
 
   const validatePincode = (val) => {
     if (!val.trim()) return "Pincode is required.";
@@ -176,6 +179,7 @@ export default function ProductDetail({
     if (error) setPincodeError(error);
     else setPincodeError("");
     setPincodeMessage("");
+    setShippingInfo(null);
   };
 
   // Sync active preview media and selected size when product changes
@@ -223,15 +227,44 @@ export default function ProductDetail({
     onBuyNow();
   };
 
-  const handleCheckPincode = (e) => {
+  const handleCheckPincode = async (e) => {
     e.preventDefault();
     const error = validatePincode(pincode);
     if (error) {
       setPincodeError(error);
       setPincodeMessage("");
+      setShippingInfo(null);
       return;
     }
-    setPincodeMessage("Estimated Delivery: 2-3 Days. Dispatch in 1 day.");
+    
+    setShippingLoading(true);
+    setPincodeError("");
+    setPincodeMessage("");
+    setShippingInfo(null);
+    
+    try {
+      const response = await axios.post("/api/shipping/check", {
+        productId: product._id,
+        pincode: pincode
+      });
+      
+      const { success, data, message } = response.data;
+      
+      if (success && data.available) {
+        setShippingInfo({
+          deliveryDate: data.deliveryDate,
+          shippingCharge: data.shippingCharge,
+          distance: data.distance
+        });
+      } else {
+        setPincodeError(data?.message || message || "Delivery not available to this pincode.");
+      }
+    } catch (err) {
+      console.error("Shipping check error:", err);
+      setPincodeError(err.response?.data?.message || "Failed to check delivery availability.");
+    } finally {
+      setShippingLoading(false);
+    }
   };
 
   // Find similar products from the same category
@@ -602,9 +635,10 @@ export default function ProductDetail({
               />
               <button
                 type="submit"
-                className="px-5 bg-transparent text-[#9F2589] dark:text-pink-400 font-bold text-xs hover:underline cursor-pointer"
+                disabled={shippingLoading}
+                className="px-5 bg-transparent text-[#9F2589] dark:text-pink-400 font-bold text-xs hover:underline cursor-pointer disabled:opacity-50"
               >
-                CHECK
+                {shippingLoading ? "CHECKING..." : "CHECK"}
               </button>
             </form>
             {pincodeError && (
@@ -612,10 +646,23 @@ export default function ProductDetail({
                 {pincodeError}
               </p>
             )}
-            {pincodeMessage && !pincodeError && (
-              <p className="text-[10px] text-emerald-600 dark:text-emerald-450 font-bold mt-0.5">
-                {pincodeMessage}
-              </p>
+            {shippingInfo && !pincodeError && (
+              <div className="flex flex-col gap-1 mt-1 text-[11px]">
+                <p className="text-emerald-600 dark:text-emerald-450 font-bold">
+                  ✓ Available for Delivery
+                </p>
+                <p className="text-slate-600 dark:text-slate-400 font-semibold">
+                  Estimated Delivery: <strong className="text-slate-800 dark:text-white">{shippingInfo.deliveryDate}</strong>
+                </p>
+                <div className="flex items-center gap-4 mt-0.5">
+                  <p className="text-slate-500 dark:text-slate-400">
+                    Charge: {shippingInfo.shippingCharge > 0 ? `₹${shippingInfo.shippingCharge}` : <span className="text-emerald-600 dark:text-emerald-500 font-black">FREE</span>}
+                  </p>
+                  {shippingInfo.distance !== "N/A" && (
+                    <p className="text-slate-500 dark:text-slate-400">Distance: {shippingInfo.distance}</p>
+                  )}
+                </div>
+              </div>
             )}
           </div>
 

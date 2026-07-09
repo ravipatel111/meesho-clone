@@ -143,7 +143,10 @@ export default function AdminUsers() {
     const nameMatch = (u.username || u.name || "").toLowerCase().includes(searchQuery.toLowerCase());
     const emailMatch = (u.email || "").toLowerCase().includes(searchQuery.toLowerCase());
     const matchesSearch = nameMatch || emailMatch;
-    const matchesRole = roleFilter === "all" || (u.role || "user").toLowerCase() === roleFilter.toLowerCase();
+    const matchesRole =
+      roleFilter === "all" ||
+      (roleFilter === "admin" && (u.role === "admin" || u.role === "superadmin")) ||
+      (roleFilter === "user" && (!u.role || u.role.toLowerCase() === "user"));
     return matchesSearch && matchesRole;
   });
 
@@ -239,6 +242,7 @@ export default function AdminUsers() {
                   <th className="py-4 px-6">Avatar</th>
                   <th className="py-4 px-6">Account Name</th>
                   <th className="py-4 px-6">Email Address</th>
+                  <th className="py-4 px-6 text-center">Role</th>
                   <th className="py-4 px-6 text-center">Status</th>
                   <th className="py-4 px-6 text-center">Admin Controls</th>
                 </tr>
@@ -263,10 +267,19 @@ export default function AdminUsers() {
                         {u.email}
                       </td>
                       <td className="py-4 px-6 text-center">
+                        <span className={`inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                          (u.role || "user").toLowerCase() === "admin" || (u.role || "user").toLowerCase() === "superadmin"
+                            ? "bg-indigo-50 dark:bg-indigo-950/20 text-indigo-700 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-850/40"
+                            : "bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-450 border border-slate-100 dark:border-slate-800"
+                        }`}>
+                          {u.role || "user"}
+                        </span>
+                      </td>
+                      <td className="py-4 px-6 text-center">
                         <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
                           u.isBlocked
                             ? "bg-rose-50 dark:bg-rose-950/20 text-rose-700 dark:text-rose-455 border border-rose-100 dark:border-rose-900/30"
-                            : "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800/40"
+                            : "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-450 border border-emerald-100 dark:border-emerald-800/40"
                         }`}>
                           <span className={`w-1.5 h-1.5 rounded-full ${u.isBlocked ? "bg-rose-500" : "bg-emerald-500"}`} />
                           {u.isBlocked ? "Blocked" : "Active"}
@@ -281,7 +294,7 @@ export default function AdminUsers() {
                           >
                             <Icons.Eye className="w-3.5 h-3.5" />
                           </button>
-                          {u.role !== "admin" && (
+                          {u.role !== "superadmin" && (
                             u.isBlocked ? (
                               <button
                                 onClick={() => handleUnblock(uId)}
@@ -302,14 +315,16 @@ export default function AdminUsers() {
                               </button>
                             )
                           )}
-                          <button
-                            onClick={() => setUserToDelete(u)}
-                            className="p-2 bg-rose-50 dark:bg-rose-950/20 hover:bg-rose-100 dark:hover:bg-rose-900/30 text-rose-600 dark:text-rose-400 rounded-xl transition-all inline-flex items-center gap-1 border border-rose-100/50 dark:border-rose-900/30 active:scale-95 cursor-pointer"
-                            title="Delete User Account"
-                          >
-                            <Icons.Trash className="w-3.5 h-3.5" />
-                            <span className="font-bold text-[10px]">Delete</span>
-                          </button>
+                          {u.role !== "superadmin" && (
+                            <button
+                              onClick={() => setUserToDelete(u)}
+                              className="p-2 bg-rose-50 dark:bg-rose-950/20 hover:bg-rose-100 dark:hover:bg-rose-900/30 text-rose-600 dark:text-rose-455 rounded-xl transition-all inline-flex items-center gap-1 border border-rose-100/50 dark:border-rose-900/30 active:scale-95 cursor-pointer"
+                              title="Delete User Account"
+                            >
+                              <Icons.Trash className="w-3.5 h-3.5" />
+                              <span className="font-bold text-[10px]">Delete</span>
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>

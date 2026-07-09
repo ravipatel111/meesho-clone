@@ -128,10 +128,8 @@ const productSlice = createSlice({
       .addCase(adminUpdateProduct.pending, pending)
       .addCase(adminUpdateProduct.fulfilled, (state, action) => {
         state.isLoading = false;
-        const idx = state.adminProducts.findIndex(p => p._id === action.payload._id);
-        if (idx !== -1) {
-          state.adminProducts[idx] = action.payload;
-        }
+        state.adminProducts = state.adminProducts.filter(p => p._id !== action.payload._id);
+        state.adminProducts.unshift(action.payload);
         state.successMessage = 'Product updated successfully';
       })
       .addCase(adminUpdateProduct.rejected, rejected)

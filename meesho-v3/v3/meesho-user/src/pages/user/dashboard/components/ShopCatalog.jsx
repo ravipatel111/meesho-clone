@@ -82,14 +82,14 @@ const circleCategories = [
 ];
 
 const brands = [
-  "https://images.meesho.com/images/marketing/1743159302944.webp",
-  "https://images.meesho.com/images/marketing/1743159322237.webp",
-  "https://images.meesho.com/images/marketing/1743159363205.webp",
-  "https://images.meesho.com/images/marketing/1743159377598.webp",
-  "https://images.meesho.com/images/marketing/1743159393231.webp",
-  "https://images.meesho.com/images/marketing/1743159415385.webp",
-  "https://images.meesho.com/images/marketing/1744636558884.webp",
-  "https://images.meesho.com/images/marketing/1744636599446.webp",
+  { image: "https://images.meesho.com/images/marketing/1743159302944.webp", url: "https://www.buywow.in" },
+  { image: "https://images.meesho.com/images/marketing/1743159322237.webp", url: "https://mamaearth.in" },
+  { image: "https://images.meesho.com/images/marketing/1743159363205.webp", url: "https://www.wildstone.in" },
+  { image: "https://images.meesho.com/images/marketing/1743159377598.webp", url: "https://plumgoodness.com" },
+  { image: "https://images.meesho.com/images/marketing/1743159393231.webp", url: "https://www.nivea.in" },
+  { image: "https://images.meesho.com/images/marketing/1743159415385.webp", url: "https://himalayawellness.in" },
+  { image: "https://images.meesho.com/images/marketing/1744636558884.webp", url: "https://www.mi.com/in" },
+  { image: "https://images.meesho.com/images/marketing/1744636599446.webp", url: "https://www.bata.in" },
 ];
 
 const originalBrandsList = [
@@ -205,7 +205,7 @@ export default function ShopCatalog({
   const handleAddToCart = async (productId, e) => {
     if (e) e.stopPropagation();
     await dispatch(addToCart({ productId, quantity: 1 })).unwrap();
-      dispatch(fetchCart());
+    dispatch(fetchCart());
   };
 
   const handleToggleWishlist = async (productId, e) => {
@@ -466,10 +466,11 @@ export default function ShopCatalog({
           {[...brands, ...brands].map((brand, index) => (
             <div
               key={index}
+              onClick={() => window.open(brand.url, '_blank')}
               className="w-40 h-22 flex-shrink-0 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-4 flex items-center justify-center transition-all duration-300 hover:scale-108 hover:shadow-md cursor-pointer hover:border-pink-500 z-10"
             >
               <img
-                src={brand}
+                src={brand.image}
                 alt="Popular Brand"
                 className="h-12 w-auto object-contain dark:brightness-90 dark:contrast-125"
               />
@@ -672,11 +673,11 @@ export default function ShopCatalog({
                   >
                     <div className="relative aspect-square overflow-hidden bg-slate-50 dark:bg-slate-950">
                       <img
-                          src={firstOrPlaceholder(p.images)}
-                          alt={p.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          onError={(e) => { e.target.src = PLACEHOLDER_IMAGE; }}
-                        />
+                        src={firstOrPlaceholder(p.images)}
+                        alt={p.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        onError={(e) => { e.target.src = PLACEHOLDER_IMAGE; }}
+                      />
 
                       <button
                         onClick={(e) => handleToggleWishlist(p._id, e)}

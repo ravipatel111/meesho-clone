@@ -85,5 +85,10 @@ const mockDbPlugin = () => ({
 
 export default defineConfig({
   plugins: [react(), tailwindcss(), mockDbPlugin()],
-  server: { port: 5174 },
+  server: { 
+    port: 5174,
+    watch: {
+      ignored: ['**/public/**']
+    }
+  },
 });

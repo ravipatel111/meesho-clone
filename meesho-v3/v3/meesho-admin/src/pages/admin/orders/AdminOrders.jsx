@@ -146,21 +146,69 @@ function Modal({ title, onClose, children }) {
   );
 }
 
-function ImageModal({ url, onClose }) {
+function ImageModal({ images, initialIndex = 0, onClose }) {
+  const [currentIndex, setCurrentIndex] = useState(initialIndex);
+
+  const handleNext = (e) => {
+    if (e) e.stopPropagation();
+    setCurrentIndex((prev) => (prev + 1) % images.length);
+  };
+
+  const handlePrev = (e) => {
+    if (e) e.stopPropagation();
+    setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") onClose();
+      else if (e.key === "ArrowRight") {
+        if (images.length > 1) handleNext();
+      } else if (e.key === "ArrowLeft") {
+        if (images.length > 1) handlePrev();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [images.length, onClose]);
+
   return (
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm cursor-zoom-out animate-fade-in"
       onClick={onClose}
     >
       <div
-        className="relative max-w-3xl w-full max-h-[85vh] flex items-center justify-center"
+        className="relative max-w-3xl w-full max-h-[85vh] flex items-center justify-center group"
         onClick={(e) => e.stopPropagation()}
       >
         <img
-          src={url}
+          src={images[currentIndex]}
           alt="Product Preview"
-          className="max-w-full max-h-[85vh] rounded-2xl object-contain shadow-2xl border border-slate-800"
+          className="max-w-full max-h-[85vh] rounded-2xl object-contain shadow-2xl border border-slate-800 transition-all duration-300"
         />
+        
+        {images.length > 1 && (
+          <>
+            <button
+              onClick={handlePrev}
+              className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-slate-900/80 hover:bg-slate-800 text-white transition-all cursor-pointer opacity-0 group-hover:opacity-100"
+            >
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+            </button>
+            <button
+              onClick={handleNext}
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-slate-900/80 hover:bg-slate-800 text-white transition-all cursor-pointer opacity-0 group-hover:opacity-100"
+            >
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+            </button>
+            <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 flex gap-1.5">
+              {images.map((_, idx) => (
+                <div key={idx} className={`w-2 h-2 rounded-full ${idx === currentIndex ? 'bg-white' : 'bg-white/30'}`} />
+              ))}
+            </div>
+          </>
+        )}
+
         <button
           onClick={onClose}
           className="absolute -top-10 right-0 p-1.5 rounded-lg bg-slate-900/80 hover:bg-slate-800 text-white transition-all cursor-pointer text-xs font-bold"
@@ -884,7 +932,10 @@ export default function AdminOrders() {
                     alt=""
                     className="w-14 h-14 rounded-lg object-cover border border-slate-100 dark:border-slate-800 shrink-0 cursor-zoom-in hover:opacity-90 transition-all"
                     onClick={() =>
-                      setZoomedImage(firstOrPlaceholder(selectedOrder.product.images))
+                      setZoomedImage({
+                        images: selectedOrder.product.images?.length > 0 ? selectedOrder.product.images.map(resolveOrPlaceholder) : [firstOrPlaceholder(selectedOrder.product.images)],
+                        initialIndex: 0
+                      })
                     }
                   />
                 ) : (
@@ -1036,7 +1087,11 @@ export default function AdminOrders() {
 
       {/* Image Zoom Modal */}
       {zoomedImage && (
-        <ImageModal url={zoomedImage} onClose={() => setZoomedImage(null)} />
+        <ImageModal 
+          images={zoomedImage.images || [typeof zoomedImage === 'string' ? zoomedImage : zoomedImage.url]} 
+          initialIndex={zoomedImage.initialIndex || 0} 
+          onClose={() => setZoomedImage(null)} 
+        />
       )}
     </div>
   );

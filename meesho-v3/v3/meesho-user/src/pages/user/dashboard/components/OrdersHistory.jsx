@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
 import { firstOrPlaceholder, PLACEHOLDER_IMAGE, getFirstProductImage } from '../../../../utils/imageUrl';
 import { cancelUserOrder, returnUserOrder, fetchMyOrders } from "../../../../redux/slices/userSlice";
+import axiosInstance from "../../../../api/AxiosInterceptor";
 
 const statusConfig = {
   pending:   { label: "Pending",   color: "amber",   icon: "⏳", step: 1 },
@@ -36,6 +37,8 @@ export default function OrdersHistory() {
   const { orders, isLoading: userLoading } = useAppSelector((s) => s.user);
   
   const [syncDb, setSyncDb] = useState({ balances: { user: 5000 }, orders: {} });
+  const [trackingData, setTrackingData] = useState({});
+  const [trackingLoading, setTrackingLoading] = useState({});
 
   const fetchSyncDb = async () => {
     try {
@@ -84,12 +87,36 @@ export default function OrdersHistory() {
     }
   };
 
+  const handleTrackLive = async (orderId) => {
+    // Toggle tracking off if already open
+    if (trackingData[orderId]) {
+      setTrackingData(prev => ({ ...prev, [orderId]: null }));
+      return;
+    }
+    
+    setTrackingLoading(prev => ({ ...prev, [orderId]: true }));
+    try {
+      const response = await axiosInstance.get(`/orders/${orderId}/tracking`);
+      if (response.data.success) {
+        setTrackingData(prev => ({ ...prev, [orderId]: response.data.data }));
+      } else {
+        setTrackingData(prev => ({ ...prev, [orderId]: { message: response.data.message || "Tracking currently unavailable." } }));
+      }
+    } catch (e) {
+      console.error("Failed to track live order:", e);
+      const errMsg = e.response?.data?.message || "Tracking currently unavailable.";
+      setTrackingData(prev => ({ ...prev, [orderId]: { message: errMsg } }));
+    } finally {
+      setTrackingLoading(prev => ({ ...prev, [orderId]: false }));
+    }
+  };
+
   const mergedOrders = (orders || []).map(ord => {
     const overlay = syncDb.orders?.[ord._id];
     const finalStatus = overlay?.status || ord.orderStatus || ord.status || "pending";
     return {
       ...ord,
-      orderStatus: finalStatus
+      orderStatus: finalStatus  
     };
   });
 
@@ -221,6 +248,16 @@ export default function OrdersHistory() {
                     )}
                   </div>
 
+                  {["confirmed", "shipped", "delivered"].includes(ord.orderStatus) && (
+                    <button
+                      onClick={() => handleTrackLive(ord._id)}
+                      disabled={trackingLoading[ord._id]}
+                      className="shrink-0 px-4.5 py-2.5 border border-indigo-200 dark:border-indigo-800 bg-indigo-500/5 hover:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[10px] font-black rounded-2xl transition-all active:scale-95 cursor-pointer uppercase tracking-wider disabled:opacity-50"
+                    >
+                      {trackingLoading[ord._id] ? "Tracking..." : trackingData[ord._id] ? "Hide Tracking" : "Track Live"}
+                    </button>
+                  )}
+
                   {ord.orderStatus !== "cancelled" && ord.orderStatus !== "delivered" && ord.orderStatus !== "returned" && ord.orderStatus !== "return_requested" && (
                     <button
                       onClick={() => handleCancelOrder(ord._id)}
@@ -245,6 +282,52 @@ export default function OrdersHistory() {
                     </span>
                   )}
                 </div>
+                
+                {/* Live Tracking Expanded Details */}
+                {trackingData[ord._id] && (
+                  <div className="mt-4 p-4 bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-slate-100 dark:border-slate-800 flex flex-col gap-3">
+                    <h5 className="text-[10px] font-black text-slate-500 uppercase tracking-widest border-b border-slate-200 dark:border-slate-700 pb-2">
+                      Live Courier Details
+                    </h5>
+                    {trackingData[ord._id].awb ? (
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        <div className="flex flex-col gap-1">
+                          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Courier</span>
+                          <span className="text-xs font-bold text-slate-800 dark:text-slate-200">{trackingData[ord._id].courier}</span>
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">AWB / Tracking ID</span>
+                          <span className="text-xs font-bold text-slate-800 dark:text-slate-200">{trackingData[ord._id].awb}</span>
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Live Status</span>
+                          <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400">{trackingData[ord._id].status}</span>
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Est. Delivery</span>
+                          <span className="text-xs font-bold text-slate-800 dark:text-slate-200">{trackingData[ord._id].estimatedDelivery || "Calculating..."}</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-400">
+                        <span>ℹ️</span> {trackingData[ord._id].message || "Shipment details not generated yet."}
+                      </div>
+                    )}
+                    
+                    {trackingData[ord._id].trackingUrl && (
+                      <div className="mt-2">
+                        <a 
+                          href={trackingData[ord._id].trackingUrl} 
+                          target="_blank" 
+                          rel="noreferrer"
+                          className="text-[10px] text-pink-600 hover:text-pink-700 hover:underline font-black flex items-center gap-1"
+                        >
+                          View Full Map Tracking 🔗
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             ))}
           </div>

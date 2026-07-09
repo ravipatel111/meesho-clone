@@ -98,13 +98,6 @@ export default function VerifyOtp() {
         </p>
       </div>
 
-      {/* Auto-fill notice */}
-      {pendingOtp && (
-        <div className="bg-blue-50 border border-blue-100 text-blue-700 rounded-2xl p-3 mb-4 text-xs font-semibold text-center">
-          ✅ OTP auto-filled — just click Verify
-        </div>
-      )}
-
       {error && (
         <div className="bg-rose-50 border border-rose-100 text-rose-800 rounded-2xl p-4 mb-4 text-xs font-semibold">
           {error}

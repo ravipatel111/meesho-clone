@@ -88,8 +88,8 @@ const adminSlice = createSlice({
       .addCase(updateUserRole.fulfilled, (state, action) => {
         const updated = action.payload?.user || action.payload?.data;
         if (updated) {
-          const idx = state.users.findIndex(u => (u._id || u.id) === (updated._id || updated.id));
-          if (idx !== -1) state.users[idx] = updated;
+          state.users = state.users.filter(u => (u._id || u.id) !== (updated._id || updated.id));
+          state.users.unshift(updated);
         }
       })
       .addCase(deleteUser.fulfilled, (state, action) => {
@@ -98,15 +98,15 @@ const adminSlice = createSlice({
       .addCase(blockUser.fulfilled, (state, action) => {
         const updated = action.payload?.user || action.payload?.data;
         if (updated) {
-          const idx = state.users.findIndex(u => (u._id || u.id) === (updated._id || updated.id));
-          if (idx !== -1) state.users[idx] = updated;
+          state.users = state.users.filter(u => (u._id || u.id) !== (updated._id || updated.id));
+          state.users.unshift(updated);
         }
       })
       .addCase(unblockUser.fulfilled, (state, action) => {
         const updated = action.payload?.user || action.payload?.data;
         if (updated) {
-          const idx = state.users.findIndex(u => (u._id || u.id) === (updated._id || updated.id));
-          if (idx !== -1) state.users[idx] = updated;
+          state.users = state.users.filter(u => (u._id || u.id) !== (updated._id || updated.id));
+          state.users.unshift(updated);
         }
       })
       .addCase(fetchAdminOrders.pending, (state) => { state.isLoading = true; })
@@ -119,10 +119,8 @@ const adminSlice = createSlice({
         state.error = action.payload;
       })
       .addCase(updateAdminOrderStatus.fulfilled, (state, action) => {
-        const idx = state.orders.findIndex(o => o._id === action.payload._id);
-        if (idx !== -1) {
-          state.orders[idx] = action.payload;
-        }
+        state.orders = state.orders.filter(o => o._id !== action.payload._id);
+        state.orders.unshift(action.payload);
       });
   },
 });

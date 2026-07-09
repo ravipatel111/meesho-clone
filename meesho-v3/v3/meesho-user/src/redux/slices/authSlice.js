@@ -242,9 +242,6 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.successMessage =
           action.payload?.message || "Registered! Please verify your OTP.";
-        // Save OTP from response for auto-fill (backend returns it directly)
-        // This is intentional since nodemailer email is not active
-        state.pendingOtp = action.payload?.otp ?? null;
       })
       .addCase(registerUser.rejected, rejected)
 
