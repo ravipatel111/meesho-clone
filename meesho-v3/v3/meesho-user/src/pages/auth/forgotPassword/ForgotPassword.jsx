@@ -4,6 +4,7 @@ import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import {
   forgotPassword,
   clearMessages,
+  setPendingEmail,
 } from "../../../redux/slices/authSlice";
 
 // Custom inline SVG icons for forgot password page
@@ -74,6 +75,7 @@ export default function ForgotPassword() {
     const result = await dispatch(forgotPassword(form.email));
 
     if (forgotPassword.fulfilled.match(result)) {
+      dispatch(setPendingEmail(form.email));
       navigate("/reset-password");
     }
   };

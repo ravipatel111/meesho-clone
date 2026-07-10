@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
-import { verifyOtp, clearMessages } from "../../../redux/slices/authSlice";
+import { verifyOtp, resendOtp, clearMessages } from "../../../redux/slices/authSlice";
 
 const MailIcon = () => (
   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -57,7 +57,7 @@ export default function VerifyOtp() {
   useEffect(() => {
     setForm((prev) => ({
       email: pendingEmail || prev.email,
-      otp:   pendingOtp  || prev.otp,
+      otp: pendingOtp || prev.otp,
     }));
   }, [pendingEmail, pendingOtp]);
 
@@ -83,6 +83,14 @@ export default function VerifyOtp() {
     if (Object.keys(newErrors).length > 0) return;
 
     dispatch(verifyOtp({ email: form.email, otp: form.otp }));
+  };
+
+  const handleResendOtp = () => {
+    if (!form.email) {
+      setErrors({ email: "Please enter your email to resend OTP" });
+      return;
+    }
+    dispatch(resendOtp({ email: form.email, type: "register" }));
   };
 
   return (
@@ -156,11 +164,23 @@ export default function VerifyOtp() {
         </button>
       </form>
 
-      <div className="text-center mt-6 pt-6 border-t border-slate-50 font-semibold text-slate-400">
-        Didn't receive the code?{" "}
-        <button onClick={() => navigate("/register")} className="text-[#0466c8] hover:underline">
-          Register again
-        </button>
+      <div className="text-center mt-6 pt-6 border-t border-slate-50 font-semibold text-slate-400 flex flex-col gap-2">
+        <div>
+          Didn't receive the code?{" "}
+          <button
+            type="button"
+            onClick={handleResendOtp}
+            disabled={isLoading}
+            className="text-[#0466c8] hover:underline disabled:opacity-50"
+          >
+            Resend OTP
+          </button>
+        </div>
+        <div>
+          <button onClick={() => navigate("/register")} className="text-slate-500 hover:underline text-[10px]">
+            Back to Register
+          </button>
+        </div>
       </div>
     </div>
   );

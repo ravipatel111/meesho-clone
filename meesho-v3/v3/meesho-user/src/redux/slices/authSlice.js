@@ -130,10 +130,11 @@ export const loginUser = createAsyncThunk(
 
 export const resetPassword = createAsyncThunk(
   "auth/resetPassword",
-  async ({ token, password }, { rejectWithValue }) => {
+  async ({ email, otp, password }, { rejectWithValue }) => {
     try {
       const res = await axiosInstance.post("/user/auth/reset-password", {
-        token,
+        email,
+        otp,
         password,
       });
       return res.data;
@@ -153,6 +154,21 @@ export const forgotPassword = createAsyncThunk(
       return res.data;
     } catch (err) {
       return rejectWithValue(extractErrorMessage(err, "Failed to send OTP"));
+    }
+  },
+);
+
+export const resendOtp = createAsyncThunk(
+  "auth/resendOtp",
+  async ({ email, type }, { rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.post("/user/auth/resend-otp", {
+        email,
+        type,
+      });
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(extractErrorMessage(err, "Failed to resend OTP"));
     }
   },
 );
@@ -298,7 +314,6 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.successMessage =
           action.payload?.message || "Password reset! You can now login.";
-        state.resetToken = null;
       })
       .addCase(resetPassword.rejected, rejected)
 
@@ -311,15 +326,23 @@ const authSlice = createSlice({
       })
       .addCase(changePassword.rejected, rejected)
 
-      // Forgot Password — resetToken kept in memory only
+      // Forgot Password
       .addCase(forgotPassword.pending, pending)
       .addCase(forgotPassword.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.resetToken = action.payload?.resetToken ?? null;
         state.successMessage =
-          action.payload?.message || "Reset token generated";
+          action.payload?.message || "OTP sent to your email";
       })
       .addCase(forgotPassword.rejected, rejected)
+
+      // Resend OTP
+      .addCase(resendOtp.pending, pending)
+      .addCase(resendOtp.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.successMessage =
+          action.payload?.message || "OTP resent to your email";
+      })
+      .addCase(resendOtp.rejected, rejected)
 
       // Logout
       .addCase(logoutUser.fulfilled, (state) => {

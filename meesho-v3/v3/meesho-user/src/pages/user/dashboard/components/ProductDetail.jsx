@@ -166,6 +166,36 @@ export default function ProductDetail({
   const [shippingLoading, setShippingLoading] = useState(false);
   const [shippingInfo, setShippingInfo] = useState(null);
 
+  // Zoom feature state
+  const [showZoom, setShowZoom] = useState(false);
+  const [zoomStyle, setZoomStyle] = useState({ bgX: 0, bgY: 0, lensX: 0, lensY: 0, lensWidth: 0, lensHeight: 0 });
+
+  const handleMouseMove = (e) => {
+    if (activeMedia.type !== "image") return;
+    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
+    
+    let mouseX = e.clientX - left;
+    let mouseY = e.clientY - top;
+
+    mouseX = Math.max(0, Math.min(mouseX, width));
+    mouseY = Math.max(0, Math.min(mouseY, height));
+
+    // Lens dimensions proportional to the zoom level (e.g., 250% zoom = lens is 40% of image size)
+    const lensWidth = width * 0.4;
+    const lensHeight = height * 0.4;
+
+    let lensX = mouseX - lensWidth / 2;
+    let lensY = mouseY - lensHeight / 2;
+
+    lensX = Math.max(0, Math.min(lensX, width - lensWidth));
+    lensY = Math.max(0, Math.min(lensY, height - lensHeight));
+
+    const bgX = (lensX / (width - lensWidth)) * 100 || 0;
+    const bgY = (lensY / (height - lensHeight)) * 100 || 0;
+
+    setZoomStyle({ bgX, bgY, lensX, lensY, lensWidth, lensHeight });
+  };
+
   const validatePincode = (val) => {
     if (!val.trim()) return "Pincode is required.";
     if (!/^\d{6}$/.test(val.trim())) return "Enter a valid 6-digit pincode.";
@@ -374,21 +404,54 @@ export default function ProductDetail({
             </div>
 
             {/* Main Preview Box */}
-            <div className="flex-1 aspect-square bg-slate-50 dark:bg-slate-950 rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-850 flex items-center justify-center relative group">
+            <div 
+              className="flex-1 aspect-square bg-slate-50 dark:bg-slate-950 rounded-2xl border border-slate-100 dark:border-slate-850 flex items-center justify-center relative group"
+              onMouseEnter={() => setShowZoom(true)}
+              onMouseLeave={() => setShowZoom(false)}
+              onMouseMove={handleMouseMove}
+            >
               {activeMedia.url ? (
                 activeMedia.type === "video" ? (
                   <video
                     src={activeMedia.url}
                     controls
                     autoPlay
-                    className="w-full h-full object-contain bg-black"
+                    className="w-full h-full object-contain bg-black rounded-2xl"
                   />
                 ) : (
-                  <img
-                    src={activeMedia.url}
-                    alt=""
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
+                  <>
+                    <img
+                      src={activeMedia.url}
+                      alt=""
+                      className="w-full h-full object-cover rounded-2xl"
+                    />
+                    
+                    {/* Lens Overlay */}
+                    {showZoom && (
+                      <div 
+                        className="absolute bg-blue-500/20 border border-blue-500/50 cursor-crosshair"
+                        style={{
+                          left: `${zoomStyle.lensX}px`,
+                          top: `${zoomStyle.lensY}px`,
+                          width: `${zoomStyle.lensWidth}px`,
+                          height: `${zoomStyle.lensHeight}px`,
+                        }}
+                      />
+                    )}
+
+                    {/* Zoom Pane Overlay to the right */}
+                    {showZoom && (
+                      <div 
+                        className="hidden md:block absolute top-0 left-full ml-4 w-[850px] h-[500px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl z-[100] pointer-events-none"
+                        style={{
+                           backgroundImage: `url(${activeMedia.url})`,
+                           backgroundPosition: `${zoomStyle.bgX}% ${zoomStyle.bgY}%`,
+                           backgroundSize: '250%',
+                           backgroundRepeat: 'no-repeat'
+                        }}
+                      />
+                    )}
+                  </>
                 )
               ) : (
                 <span className="text-slate-350 dark:text-slate-700 font-black text-2xl">

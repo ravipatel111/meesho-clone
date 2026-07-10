@@ -202,6 +202,36 @@ export default function ShopCatalog({
     }
   };
 
+  const handleCircleCategorySelect = (categoryName) => {
+    if (!categories || categories.length === 0) {
+      handleCategorySelect("all");
+      return;
+    }
+    const lowerSearch = categoryName.toLowerCase();
+    let matchedCat = categories.find(c => c.name.toLowerCase() === lowerSearch);
+    
+    if (!matchedCat) {
+      if (lowerSearch.includes("wear") || lowerSearch.includes("dress") || lowerSearch.includes("mens") || lowerSearch.includes("footwear") || lowerSearch.includes("accessories")) {
+        matchedCat = categories.find(c => c.name.toLowerCase().includes("fashion") || c.name.toLowerCase().includes("clothing"));
+      } else if (lowerSearch.includes("home")) {
+        matchedCat = categories.find(c => c.name.toLowerCase().includes("home") || c.name.toLowerCase().includes("decor"));
+      } else if (lowerSearch.includes("beauty")) {
+        matchedCat = categories.find(c => c.name.toLowerCase().includes("beauty") || c.name.toLowerCase().includes("makeup"));
+      } else if (lowerSearch.includes("grocery")) {
+        matchedCat = categories.find(c => c.name.toLowerCase().includes("grocery") || c.name.toLowerCase().includes("food"));
+      }
+    }
+
+    if (matchedCat) {
+      handleCategorySelect(matchedCat._id);
+    } else {
+      handleCategorySelect("all");
+    }
+    
+    const el = document.getElementById("products-for-you");
+    if (el) el.scrollIntoView({ behavior: "smooth" });
+  };
+
   const handleAddToCart = async (productId, e) => {
     if (e) e.stopPropagation();
     await dispatch(addToCart({ productId, quantity: 1 })).unwrap();
@@ -287,7 +317,10 @@ export default function ShopCatalog({
           </div>
 
           <button
-            onClick={() => handleCategorySelect("6a292926eb683b0e643372cc")} // fashion
+            onClick={() => {
+              const el = document.getElementById("products-for-you");
+              if (el) el.scrollIntoView({ behavior: "smooth" });
+            }}
             className="bg-white hover:bg-slate-50 text-indigo-950 px-3 sm:px-6 md:px-8 py-1 sm:py-2.5 md:py-3 rounded-lg font-black text-[8px] sm:text-xs md:text-sm tracking-wider uppercase transition duration-300 active:scale-95 cursor-pointer shadow-xs w-50"
           >
             Shop Now
@@ -324,7 +357,7 @@ export default function ShopCatalog({
         {circleCategories.map((category, index) => (
           <div
             key={index}
-            onClick={() => handleCategorySelect(category.catId)}
+            onClick={() => handleCircleCategorySelect(category.name)}
             className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-850 rounded-2xl shadow-2xs hover:shadow-lg transition-all duration-300 p-4 flex flex-col items-center text-center cursor-pointer select-none group hover:-translate-y-0.5"
           >
             <div className="w-full h-32 overflow-hidden rounded-xl bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
@@ -628,7 +661,7 @@ export default function ShopCatalog({
         </div>
 
         {/* Right Main Catalog Grid */}
-        <div className="flex-1 flex flex-col gap-6">
+        <div id="products-for-you" className="flex-1 flex flex-col gap-6 scroll-mt-24">
           <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-850">
             <h1 className="text-lg md:text-xl font-black tracking-tight text-slate-900 dark:text-white">
               Products For You
