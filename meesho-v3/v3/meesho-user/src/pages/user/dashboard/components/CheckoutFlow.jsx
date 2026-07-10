@@ -668,6 +668,14 @@ export default function CheckoutFlow({
                     desc: "Pay securely with Visa, Mastercard, RuPay, or Maestro",
                     tags: ["Secure"],
                   },
+                  {
+                    id: "COD",
+                    title: "Cash on Delivery",
+                    icon: "💵",
+                    desc: "Pay in cash when your order arrives at your doorstep",
+                    tags: ["Cash"],
+                    extra: "Free delivery on all COD orders",
+                  },
                 ].map((method) => {
                   const isSelected = paymentMethod === method.id;
 
@@ -811,16 +819,18 @@ export default function CheckoutFlow({
                 </div>
                 <div className="text-xs flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-xl shrink-0">
-                    {paymentMethod === "upi" ? "📱" : "💳"}
+                    {paymentMethod === "upi" ? "📱" : paymentMethod === "COD" ? "💵" : "💳"}
                   </div>
                   <div>
                     <p className="font-black text-slate-850 dark:text-white text-sm capitalize">
                       {paymentMethod === "upi"
                         ? "UPI Instant Payment"
-                        : "Credit / Debit Card"}
+                        : paymentMethod === "COD"
+                          ? "Cash on Delivery"
+                          : "Credit / Debit Card"}
                     </p>
                     <p className="text-[10px] text-slate-450 dark:text-slate-500 font-bold mt-0.5">
-                      Prepaid transaction
+                      {paymentMethod === "COD" ? "Pay on arrival" : "Prepaid transaction"}
                     </p>
                   </div>
                 </div>

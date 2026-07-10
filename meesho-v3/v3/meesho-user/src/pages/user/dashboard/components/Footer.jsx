@@ -96,7 +96,8 @@ export default function Footer() {
             <div className="flex flex-row flex-wrap items-center gap-3 mt-2">
               {/* Google Play */}
               <a
-                href="#"
+                href="https://play.google.com/store/apps/details?id=com.meesho.supply"
+                target="_blank" rel="noreferrer"
                 className="flex items-center gap-2.5 bg-black hover:bg-slate-900 text-white rounded-md px-3.5 py-1.5 transition-all duration-300 hover:scale-[1.02] active:scale-95 border border-slate-800 h-[42px] w-[145px]"
               >
                 <GooglePlayLogo />
@@ -112,7 +113,8 @@ export default function Footer() {
 
               {/* App Store */}
               <a
-                href="#"
+                href="https://apps.apple.com/us/app/meesho/id1455048286"
+                target="_blank" rel="noreferrer"
                 className="flex items-center gap-2.5 bg-black hover:bg-slate-900 text-white rounded-md px-3.5 py-1.5 transition-all duration-300 hover:scale-[1.02] active:scale-95 border border-slate-800 h-[42px] w-[145px]"
               >
                 <AppleLogo />
@@ -132,22 +134,22 @@ export default function Footer() {
           <div className="w-full lg:w-[13%] flex flex-col gap-3.5">
             <ul className="flex flex-col gap-3 text-base font-semibold text-[#555555] dark:text-slate-400">
               <li>
-                <a href="#" className="hover:text-pink-600 transition-colors">
+                <a href="https://www.meesho.io/jobs" target="_blank" rel="noreferrer" className="hover:text-pink-600 transition-colors">
                   Careers
                 </a>
               </li>
               <li>
-                <a href="#" className="hover:text-pink-600 transition-colors">
+                <a href="https://supplier.meesho.com/" target="_blank" rel="noreferrer" className="hover:text-pink-600 transition-colors">
                   Become a supplier
                 </a>
               </li>
               <li>
-                <a href="#" className="hover:text-pink-600 transition-colors">
+                <a href="https://www.meesho.io/news" target="_blank" rel="noreferrer" className="hover:text-pink-600 transition-colors">
                   Hall of Fame
                 </a>
               </li>
               <li>
-                <a href="#" className="hover:text-pink-600 transition-colors">
+                <a href="https://meesho.com/sitemap" target="_blank" rel="noreferrer" className="hover:text-pink-600 transition-colors">
                   Sitemap
                 </a>
               </li>
@@ -158,17 +160,17 @@ export default function Footer() {
           <div className="w-full lg:w-[16%] flex flex-col gap-3.5">
             <ul className="flex flex-col gap-3 text-base font-semibold text-[#555555] dark:text-slate-400">
               <li>
-                <a href="#" className="hover:text-pink-600 transition-colors">
+                <a href="https://meesho.com/legal" target="_blank" rel="noreferrer" className="hover:text-pink-600 transition-colors">
                   Legal and Policies
                 </a>
               </li>
               <li>
-                <a href="#" className="hover:text-pink-600 transition-colors">
+                <a href="https://medium.com/meesho-tech" target="_blank" rel="noreferrer" className="hover:text-pink-600 transition-colors">
                   Meesho Tech Blog
                 </a>
               </li>
               <li>
-                <a href="#" className="hover:text-pink-600 transition-colors">
+                <a href="https://meesho.com/notices-and-returns" target="_blank" rel="noreferrer" className="hover:text-pink-600 transition-colors">
                   Notices and Returns
                 </a>
               </li>
@@ -183,7 +185,8 @@ export default function Footer() {
             <div className="flex flex-row items-center gap-3">
               {/* Facebook */}
               <a
-                href="#"
+                href="https://www.facebook.com/meeshosupply"
+                target="_blank" rel="noreferrer"
                 className="w-8.5 h-8.5 rounded-full bg-[#3b5998] flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 shadow-2xs hover:shadow-md cursor-pointer"
                 aria-label="Facebook"
               >
@@ -192,7 +195,8 @@ export default function Footer() {
 
               {/* Instagram */}
               <a
-                href="#"
+                href="https://www.instagram.com/meeshoapp"
+                target="_blank" rel="noreferrer"
                 className="w-8.5 h-8.5 rounded-full bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 shadow-2xs hover:shadow-md cursor-pointer"
                 aria-label="Instagram"
               >
@@ -201,7 +205,8 @@ export default function Footer() {
 
               {/* Youtube */}
               <a
-                href="#"
+                href="https://www.youtube.com/channel/UCa1h3zG_Fk2a-cEqtX2w80A"
+                target="_blank" rel="noreferrer"
                 className="w-8.5 h-8.5 rounded-full bg-[#c4302b] flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 shadow-2xs hover:shadow-md cursor-pointer"
                 aria-label="YouTube"
               >
@@ -210,7 +215,8 @@ export default function Footer() {
 
               {/* Linkedin */}
               <a
-                href="#"
+                href="https://www.linkedin.com/company/meesho"
+                target="_blank" rel="noreferrer"
                 className="w-8.5 h-8.5 rounded-full bg-[#0077b5] flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 shadow-2xs hover:shadow-md cursor-pointer"
                 aria-label="LinkedIn"
               >
@@ -219,7 +225,8 @@ export default function Footer() {
 
               {/* Twitter */}
               <a
-                href="#"
+                href="https://twitter.com/Meesho_Official"
+                target="_blank" rel="noreferrer"
                 className="w-8.5 h-8.5 rounded-full bg-[#00acee] flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 shadow-2xs hover:shadow-md cursor-pointer"
                 aria-label="Twitter"
               >
