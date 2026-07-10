@@ -47,7 +47,7 @@ export default function AddressModal({ onClose }) {
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     const finalValue = type === "checkbox" ? checked : value;
-    
+
     setAddressForm((prev) => {
       const newForm = { ...prev, [name]: finalValue };
       if (type !== "checkbox" && name !== "landmark") {
@@ -231,11 +231,10 @@ export default function AddressModal({ onClose }) {
                     onClick={() =>
                       setAddressForm({ ...addressForm, addressType: type })
                     }
-                    className={`px-5 py-2.5 border rounded-2xl text-xs font-black transition-all cursor-pointer ${
-                      addressForm.addressType === type
-                        ? "border-[#9F2089] text-[#9F2089] bg-pink-500/10 dark:border-pink-500 dark:text-pink-400 shadow-xs"
-                        : "border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 bg-transparent hover:bg-slate-50 dark:hover:bg-slate-850"
-                    }`}
+                    className={`px-5 py-2.5 border rounded-2xl text-xs font-black transition-all cursor-pointer ${addressForm.addressType === type
+                      ? "border-[#9F2089] text-[#9F2089] bg-pink-500/10 dark:border-pink-500 dark:text-pink-400 shadow-xs"
+                      : "border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 bg-transparent hover:bg-slate-50 dark:hover:bg-slate-850"
+                      }`}
                   >
                     {type}
                   </button>

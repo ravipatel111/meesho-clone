@@ -15,9 +15,7 @@ export const adminFetchProducts = createAsyncThunk('product/adminFetchAll', asyn
 
 export const adminCreateProduct = createAsyncThunk('product/adminCreate', async (formData, { rejectWithValue }) => {
   try {
-    const res = await axiosInstance.post('/admin/product/create', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    });
+    const res = await axiosInstance.post('/admin/product/create', formData);
     return res.data.data;
   } catch (err) {
     return rejectWithValue(err.response?.data?.message || 'Failed to create product');
@@ -26,9 +24,7 @@ export const adminCreateProduct = createAsyncThunk('product/adminCreate', async 
 
 export const adminUpdateProduct = createAsyncThunk('product/adminUpdate', async ({ id, formData }, { rejectWithValue }) => {
   try {
-    const res = await axiosInstance.put(`/admin/product/${id}`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    });
+    const res = await axiosInstance.put(`/admin/product/${id}`, formData);
     return res.data.data;
   } catch (err) {
     return rejectWithValue(err.response?.data?.message || 'Failed to update product');

@@ -1,6 +1,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axiosInstance from '../../api/AxiosInterceptor';
 
+console.log("productSlice loaded with correct multipart headers");
+
 // ─── Thunks ───────────────────────────────────────────────
 
 // ADMIN ACTIONS
@@ -15,20 +17,21 @@ export const adminFetchProducts = createAsyncThunk('product/adminFetchAll', asyn
 
 export const adminCreateProduct = createAsyncThunk('product/adminCreate', async (formData, { rejectWithValue }) => {
   try {
-    const res = await axiosInstance.post('/admin/product/create', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    });
+    const res = await axiosInstance.post('/admin/product/create', formData);
     return res.data.data;
   } catch (err) {
-    return rejectWithValue(err.response?.data?.message || 'Failed to create product');
+    console.log("CREATE ERROR", err.response?.data);
+    return rejectWithValue(
+      err.response?.data?.message || 
+      (err.response?.data ? JSON.stringify(err.response.data) : err.message) || 
+      'Failed to create product'
+    );
   }
 });
 
 export const adminUpdateProduct = createAsyncThunk('product/adminUpdate', async ({ id, formData }, { rejectWithValue }) => {
   try {
-    const res = await axiosInstance.put(`/admin/product/${id}`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    });
+    const res = await axiosInstance.put(`/admin/product/${id}`, formData);
     return res.data.data;
   } catch (err) {
     console.log("UPDATE ERROR", err.response?.data);
