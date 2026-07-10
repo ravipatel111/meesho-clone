@@ -31,7 +31,12 @@ export const adminUpdateProduct = createAsyncThunk('product/adminUpdate', async 
     });
     return res.data.data;
   } catch (err) {
-    return rejectWithValue(err.response?.data?.message || 'Failed to update product');
+    console.log("UPDATE ERROR", err.response?.data);
+    return rejectWithValue(
+      err.response?.data?.message || 
+      (err.response?.data ? JSON.stringify(err.response.data) : err.message) || 
+      'Failed to update product'
+    );
   }
 });
 

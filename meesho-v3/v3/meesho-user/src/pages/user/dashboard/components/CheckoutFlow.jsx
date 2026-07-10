@@ -213,6 +213,13 @@ export default function CheckoutFlow({
     showToastMsg("Item removed from cart.", "success");
   };
 
+  const handleUpdateQty = async (productId, currentQty, change) => {
+    const newQty = currentQty + change;
+    if (newQty < 1) return;
+    await dispatch(updateCartItem({ productId, quantity: newQty }));
+    dispatch(fetchCart());
+  };
+
   const handleOpenEdit = (item) => {
     setEditingItem(item);
     setTempSize(
@@ -502,11 +509,26 @@ export default function CheckoutFlow({
                                   <span className="text-slate-300 dark:text-slate-700">•</span>
                                 </>
                               )}
-                              <span>
-                                Qty:{" "}
-                                <span className="text-slate-800 dark:text-white bg-slate-100 dark:bg-slate-800 px-2.5 py-0.5 rounded-md text-[11px]">
-                                  {item.quantity}
-                                </span>
+                              <span className="flex items-center gap-1.5">
+                                Qty:
+                                <div className="inline-flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded-md border border-slate-200 dark:border-slate-700">
+                                  <button 
+                                    onClick={() => handleUpdateQty(prodId, item.quantity, -1)} 
+                                    disabled={item.quantity <= 1}
+                                    className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer disabled:opacity-30 flex items-center justify-center w-4"
+                                  >
+                                    -
+                                  </button>
+                                  <span className="text-slate-800 dark:text-white text-[11px] font-bold min-w-[14px] text-center">
+                                    {item.quantity}
+                                  </span>
+                                  <button 
+                                    onClick={() => handleUpdateQty(prodId, item.quantity, 1)} 
+                                    className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer flex items-center justify-center w-4"
+                                  >
+                                    +
+                                  </button>
+                                </div>
                               </span>
                             </div>
 
